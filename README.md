@@ -3,7 +3,7 @@
 ```
 |--sessions/  # Session history from each chat interface session
 |  |--{session_id}.json
-|--studio/
+|--workspace/
 |  |--AGENT.md  # Multi-agent & delegation workflows
 |  |--MANDATE.md  # Behavior, personality, principles
 |  |--MEMORY.md  # Long-term memory
