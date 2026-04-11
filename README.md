@@ -27,6 +27,8 @@
 |  |--etc
 ```
 
+## Project Description
+
 #### Sessions
 
 A session is a unique conversation with the agent. Each session is stored as a unique json file. 
