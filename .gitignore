@@ -1,6 +1,8 @@
 # Project Files
 .env
 sessions/*.json
+*.db
+
 
 # Python files
 __pycache__/

@@ -1,0 +1,6 @@
+{
+    "name": "read_file",
+    "is_core": true,
+    "description": "Reads a file from the filesystem.",
+    "keywords": ["read", "file", "document", "open", "cat"]
+}

@@ -21,16 +21,58 @@ class LLMClient:
 
     async def _async_generate_response(self, messages: list, tools: list = None) -> dict:
         agent_framework_messages = []
+
         for msg in messages:
-            agent_framework_messages.append(Message(msg["role"], [msg["content"]]))
+            if not msg.get("content") and not msg.get("tool_calls"):
+                continue
 
-        response = await self.client.get_response(agent_framework_messages)
+            kwargs = {}
+            if msg.get("tool_calls"):
+                kwargs["tool_calls"] = msg["tool_calls"]
+            if msg.get("tool_call_id"):
+                kwargs["tool_call_id"] = msg["tool_call_id"]
+            if msg.get("name"):
+                kwargs["name"] = msg["name"]
 
-        response_text = response.messages[0].text if response.messages else ""
+            # Safely handle the content block and unpack the tool data
+            content_list = [msg.get("content")] if msg.get("content") else []
+            agent_framework_messages.append(Message(msg["role"], content_list, **kwargs))
+
+        request_options = {}
+        if tools:
+            request_options["tools"] = tools
+
+        #print("\n--- Sending to LLM ---")
+        #for m in agent_framework_messages:
+        #    # Joins the content list into a single string for printing
+        #    content_str = " ".join([str(c) for c in m.contents])
+        #    print(f"[{m.role.upper()}]: {content_str}")
+        #print("----------------------\n")
+
+        response = await self.client.get_response(agent_framework_messages, options=request_options)
+
+        response_text = ""
+        if response.messages and getattr(response.messages[0], "text", None):
+            response_text = response.messages[0].text
+
+        tool_calls = []
+        if response.messages and getattr(response.messages[0], "tool_calls", None):
+            raw_tool_calls = response.messages[0].tool_calls
+            
+            for tc in raw_tool_calls:
+                if isinstance(tc, dict):
+                    tool_calls.append(tc)
+                else:
+                    tool_calls.append({
+                        "id": tc.id,
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments
+                        }
+                    })
 
         return {
             "role": "assistant",
             "content": response_text,
-            "tool_calls": [] 
+            "tool_calls": tool_calls 
         }
-

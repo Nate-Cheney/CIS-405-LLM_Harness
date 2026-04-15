@@ -66,3 +66,4 @@ class CommandManager:
         )
 
         return ("new", "Context cleared! Starting a fresh session.")
+

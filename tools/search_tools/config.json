@@ -1,0 +1,6 @@
+{
+    "name": "search_tools",
+    "is_core": true,
+    "description": "Uses a keyword to semantically search available tools",
+    "keywords": ["function", "call", "tool", "search", "discovery"]
+}
