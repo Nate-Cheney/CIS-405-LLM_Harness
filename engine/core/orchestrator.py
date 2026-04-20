@@ -55,32 +55,6 @@ class Orchestrator:
             if response.get("content") or response.get("tool_calls"):
                 messages.append(response)
 
-            # Check for and handle tool calls
-            #while response.get("tool_calls"):
-            #    for tool_call in response["tool_calls"]:
-            #        tool_name = tool_call["function"]["name"]
-            #        tool_args_str = tool_call["function"]["arguments"]
-            #        tool_call_id = tool_call["id"]
-
-            #        try:
-            #            tool_args = json.loads(tool_args_str)
-            #            tool_result = self.tool_manager.execute_tool(tool_name, **tool_args)
-            #            
-            #        except Exception as e:
-            #            tool_result = f"Error executing {tool_name}: {str(e)}"
-
-            #        # Append the tool's result to the message history
-            #        messages.append({
-            #            "role": "tool",
-            #            "tool_call_id": tool_call_id,
-            #            "name": tool_name,
-            #            "content": str(tool_result)
-            #        })
-
-                # Send the updated message history (with tool results) back to the LLM
-                response = self.llm.generate_response(messages)
-                messages.append(response)
-
             # Dump the final session state
             self.session_manager.dump_session(
                 session_id,
