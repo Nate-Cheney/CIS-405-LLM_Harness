@@ -3,13 +3,10 @@ import tiktoken
 
 from pathlib import Path
 
-from utilities.prompt_builder import PromptBuilder 
-
 
 class SessionManager:
     def __init__(self, session_path: str = "sessions"):
         self.session_path = Path(session_path)
-        self.prompt_builder = PromptBuilder()
 
     def load_session(self, session_id: str) -> tuple[str, str, list[dict]]:
         """
@@ -28,9 +25,7 @@ class SessionManager:
         Creates a new session with a given user input.
         Returns message history.
         """
-        system_prompt = self.prompt_builder.build_system_prompt()
         messages = [
-            {"role": "system", "content": system_prompt}, 
             {"role": "user", "content": user_input}
         ]
         return messages

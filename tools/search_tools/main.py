@@ -1,27 +1,41 @@
 from agent_framework import tool
+import numpy as np
+from pathlib import Path
 import os
+from sentence_transformers import SentenceTransformer
+import sqlite3
+import sqlite_vec
 
 
 @tool
-def search_tools(keyword: str, top_k: int = 5) -> list:
+def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -> list:
     """
     Searches the vector database for available tools based on a keyword.
     
     Args:
-        tool_keyword: The keyword to search for related tools.
+        keyword: The keyword to search for related tools.
         top_k: The maximum number of tools to return.
+        tools_directory: The relative path to the tools directory.
     """
+    # Init necessary variables
+    # Assumes file is at project_root/tools/search_tools/main.py
+    tools_dir = Path(__file__).parent.parent.parent / tools_directory
+    db_path = tools_dir / "tools.db"
+    
+    embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
-
-    """
-    Function to query tool database by keyword using semantic vector search.
-    """
-    # Embed search query
-    query_vector = self.embedding_model.encode(tool_keyword)
+    connection = sqlite3.connect(db_path)
+    connection.enable_load_extension(True)
+    sqlite_vec.load(connection)
+    connection.enable_load_extension(False)
+    cursor = connection.cursor()
+    
+    # Embed search query - using 'keyword' consistently
+    query_vector = embedding_model.encode(keyword)
     query_bytes = np.array(query_vector, dtype=np.float32).tobytes()
-       
+        
     # Query description 
-    self.cursor.execute("""
+    cursor.execute("""
         SELECT 
             t.tool_name, 
             t.is_core,
@@ -31,10 +45,10 @@ def search_tools(keyword: str, top_k: int = 5) -> list:
         JOIN tools t ON t.id = v.id
         WHERE v.description_embedding MATCH ? AND k = ?
     """, (query_bytes, top_k))
-    description_results = self.cursor.fetchall()
+    description_results = cursor.fetchall()
         
-    # Query description 
-    self.cursor.execute("""
+    # Query keywords 
+    cursor.execute("""
         SELECT 
             t.tool_name, 
             t.is_core,
@@ -44,7 +58,7 @@ def search_tools(keyword: str, top_k: int = 5) -> list:
         JOIN tools t ON t.id = v.id
         WHERE v.keywords_embedding MATCH ? AND k = ?
     """, (query_bytes, top_k))
-    keyword_results = self.cursor.fetchall()
+    keyword_results = cursor.fetchall()
 
     # Combine, deduplicate, and format
     unique_tools = {}
@@ -53,7 +67,6 @@ def search_tools(keyword: str, top_k: int = 5) -> list:
         distance = row[3]
             
         if tool_name in unique_tools:
-            # If tool already exists, update to the lower distance
             unique_tools[tool_name]["distance"] = min(unique_tools[tool_name]["distance"], distance)
         else:
             unique_tools[tool_name] = {
@@ -64,7 +77,10 @@ def search_tools(keyword: str, top_k: int = 5) -> list:
             }
         
     matched_tools = list(unique_tools.values())        
-    matched_tools.sort(key=lambda x: x["distance"])  # Re-sort by distance
-        
-    return matched_tools[:top_k]
+    matched_tools.sort(key=lambda x: x["distance"])
+    
+    connection.close() 
+    print(f"Found {len(matched_tools)} tools.")
+
+    return "\n".join([f"- {t['tool_name']}: {t['description']}" for t in matched_tools])
 

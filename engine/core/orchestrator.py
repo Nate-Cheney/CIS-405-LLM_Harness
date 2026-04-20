@@ -7,20 +7,15 @@ from datetime import datetime
 from managers.command_manager import CommandManager
 from managers.session_manager import SessionManager
 from managers.tool_manager import ToolManager
-from utilities.prompt_builder import PromptBuilder
 from utilities.llm_client import LLMClient
 
 
 class Orchestrator:
     def __init__(self):
-        self.prompt_builder = PromptBuilder()
         self.llm = LLMClient("OpenAI-Compatible", "temp")
         self.command_manager = CommandManager()
         self.session_manager = SessionManager()
         self.tool_manager = ToolManager()
-
-    def __del__(self):
-        self.tool_manager.close_db_connection()
 
     def run_turn(self, session_id: str, user_input: str) -> tuple[str, str]:
         """
@@ -57,30 +52,30 @@ class Orchestrator:
         # Get LLM response, append to message history, and dump
         try:
             response = self.llm.generate_response(messages, self.tool_manager.core_tools)
-            messages.append(response)
+            if response.get("content") or response.get("tool_calls"):
+                messages.append(response)
 
             # Check for and handle tool calls
-            # Loop until there are no more tool calls
-            while response.get("tool_calls"):
-                for tool_call in response["tool_calls"]:
-                    tool_name = tool_call["function"]["name"]
-                    tool_args_str = tool_call["function"]["arguments"]
-                    tool_call_id = tool_call["id"]
+            #while response.get("tool_calls"):
+            #    for tool_call in response["tool_calls"]:
+            #        tool_name = tool_call["function"]["name"]
+            #        tool_args_str = tool_call["function"]["arguments"]
+            #        tool_call_id = tool_call["id"]
 
-                    try:
-                        tool_args = json.loads(tool_args_str)
-                        tool_result = self.tool_manager.execute_tool(tool_name, **tool_args)
-                        
-                    except Exception as e:
-                        tool_result = f"Error executing {tool_name}: {str(e)}"
+            #        try:
+            #            tool_args = json.loads(tool_args_str)
+            #            tool_result = self.tool_manager.execute_tool(tool_name, **tool_args)
+            #            
+            #        except Exception as e:
+            #            tool_result = f"Error executing {tool_name}: {str(e)}"
 
-                    # Append the tool's result to the message history
-                    messages.append({
-                        "role": "tool",
-                        "tool_call_id": tool_call_id,
-                        "name": tool_name,
-                        "content": str(tool_result)
-                    })
+            #        # Append the tool's result to the message history
+            #        messages.append({
+            #            "role": "tool",
+            #            "tool_call_id": tool_call_id,
+            #            "name": tool_name,
+            #            "content": str(tool_result)
+            #        })
 
                 # Send the updated message history (with tool results) back to the LLM
                 response = self.llm.generate_response(messages)

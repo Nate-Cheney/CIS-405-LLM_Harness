@@ -145,7 +145,6 @@ class ToolManager:
             if not tool_folder.is_dir():
                 continue
             self._load_tool(tool_folder)
-    
 
     def _load_tool(self, tool_folder: str) -> None:
         """
