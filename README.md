@@ -9,13 +9,6 @@
 |  |--MEMORY.md  # Long-term memory
 |  |--memory/  # Daily memory files
 |     |--YYYY--MM-DD.md
-|--tasks/
-|  |--active/  # Link to action, status info
-|  |--scheduled/  #  
-|     |--task_name/
-|        |--config.json  # Parsed by engine 
-|        |--instructions.md  # Task instructions
-|        |--history.md  # Notable results & findings from execution history 
 |--tools/
 |  |--read_file  # core
 |  |--write_file  # core
@@ -85,14 +78,6 @@ The markdown files in the root of the `studio/` directory makeup the system prom
 - `MEMORY.md` are snippets of information that either the model or user has deemed as important to remember.
 
 The `memory/` directory contains a collection of daily notes. Each daily note contains a running context/recollection of the day. The current daily note is updated at the conclusion of each session.
-
-#### Tasks
-
-Tasks are unique action items for the model to repeat on a set schedule. 
-
-Each task is stored in the `tasks/scheduled/` directory.
-
-When a task is actively being executed, a file is created in the `tasks/active/` directory. This file will link to the scheduled task and describe it's active progress. When the active task has finished execution, the information will be added to the scheduled task's history.
 
 #### Tools
 
