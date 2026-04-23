@@ -52,7 +52,7 @@ class Orchestrator:
         # Get LLM response, append to message history, and dump
         try:
             response = self.llm.generate_response(messages, self.tool_manager.core_tools)
-            if response.get("content") or response.get("tool_calls"):
+            if response.get("content"):
                 messages.append(response)
 
             # Dump the final session state

@@ -26,23 +26,23 @@ class ToolManager:
         if self.connection:
             self.connection.close()
 
-    def execute_tool(self, tool_name: str, **kwargs):
-        """
-        Routes the tool execution request to the appropriate loaded function.
-        """
-        if tool_name in self.loaded_tools:
-            tool_function = self.loaded_tools[tool_name]
-
-            try:
-                # Unpack the keyword arguments and execute the native Python function
-                result = tool_function(**kwargs)
-                return result
-                
-            except Exception as e:  # Catch any runtime errors within the tool itself
-                return f"Error executing tool '{tool_name}': {str(e)}"
-        
-        # Fallback if the LLM hallucinated a tool or requested an unloaded one
-        return f"Error: Tool '{tool_name}' not found in loaded tools."
+#    def execute_tool(self, tool_name: str, **kwargs):
+#        """
+#        Routes the tool execution request to the appropriate loaded function.
+#        """
+#        if tool_name in self.loaded_tools:
+#            tool_function = self.loaded_tools[tool_name]
+#
+#            try:
+#                # Unpack the keyword arguments and execute the native Python function
+#                result = tool_function(**kwargs)
+#                return result
+#                
+#            except Exception as e:  # Catch any runtime errors within the tool itself
+#                return f"Error executing tool '{tool_name}': {str(e)}"
+#        
+#        # Fallback if the LLM hallucinated a tool or requested an unloaded one
+#        return f"Error: Tool '{tool_name}' not found in loaded tools."
 
     def search_tools(self, tool_keyword: str, top_k: int = 5):
         """
