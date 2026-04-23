@@ -1,4 +1,4 @@
-from agent_framework import Agent, Message, tool
+from agent_framework import Agent, Message
 from agent_framework.openai import OpenAIChatCompletionClient
 import asyncio
 import os
