@@ -1,5 +1,4 @@
 from agent_framework import Agent, Message
-from agent_framework.openai import OpenAIChatCompletionClient
 import asyncio
 import os
 
@@ -13,12 +12,13 @@ class LLMClient:
         system_prompt = prompt_builder.build_system_prompt()
 
         if model_provider == "OpenAI-Compatible":
+            from agent_framework.openai import OpenAIChatCompletionClient
             client = OpenAIChatCompletionClient(
                 base_url=os.getenv("OPENAI_BASE_URL"),
                 api_key=os.getenv("OPENAI_API_KEY"),
                 model=self.model,
             )
-        
+
         self.agent = client.as_agent(
             name="chat_agent",
             instructions=system_prompt
