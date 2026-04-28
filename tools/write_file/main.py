@@ -2,7 +2,7 @@ from pathlib import Path
 from agent_framework import tool
 
 
-@tool
+@tool(approval_mode="always_require")
 def write_file(path: str, new_contents: str) -> str:
     """
     Creates a new file.
