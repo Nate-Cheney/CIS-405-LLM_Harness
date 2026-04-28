@@ -20,6 +20,37 @@
 |  |--etc
 ```
 
+## Example environment files
+
+#### vLLM
+
+``` .env
+# Huggingface
+HF_TOKEN=hf_...
+
+# Inference provider
+OPENAI_BASE_URL=http://localhost:8000/v1
+OPENAI_API_KEY=NA
+
+# Models
+LLM_MODEL=Qwen/Qwen2.5-7B-Instruct-AWQ
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+```
+
+#### Ollama
+
+``` .env
+# Huggingface
+HF_TOKEN=hf_...
+
+# Inference provider
+TODO: Ollama inference variables
+
+# Models
+LLM_MODEL=
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+```
+
 ## Project Description
 
 #### Sessions
@@ -68,11 +99,11 @@ Simple example `session_id.json` file:
 }
 ```
 
-#### Studio
+#### Workspace
 
-The studio is the directory where the LLM does it's work.
+The workspace is the directory where the LLM does it's work.
 
-The markdown files in the root of the `studio/` directory makeup the system prompt for the harness.
+The markdown files in the root of the `workspace/` directory make up the system prompt for the harness.
 - `AGENT.md` describes agent orchestration & how to delegate complex tasks.
 - `MANDATE.md` describes desired behavior, personality, and principles.
 - `MEMORY.md` are snippets of information that either the model or user has deemed as important to remember.
