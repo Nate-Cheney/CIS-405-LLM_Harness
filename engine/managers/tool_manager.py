@@ -15,7 +15,7 @@ class ToolManager:
         self.db_path = Path(f"{self.tools_dir}/tools.db")
 
         self.embedding_model = SentenceTransformer(
-            "all-MiniLM-L6-v2",
+            os.getenv("EMBEDDING_MODEL"),
             token=os.getenv("HF_TOKEN")
         )
 
