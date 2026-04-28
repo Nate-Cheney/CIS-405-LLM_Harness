@@ -21,6 +21,9 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
         keyword: The keyword to search for related tools.
         top_k: The maximum number of tools to return.
         tools_directory: The relative path to the tools directory.
+
+    Returns:
+        A list of available tools and their descriptions.
     """
     # Init necessary variables
     # Assumes file is at project_root/tools/search_tools/main.py

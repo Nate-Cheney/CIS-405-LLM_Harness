@@ -201,7 +201,8 @@ class ToolManager:
                 
             # Create the actual module from the spec
             module = importlib.util.module_from_spec(spec)
-               
+            
+            # Inject the embedding_model into search_tools
             if tool_name == "search_tools":
                 module.embedding_model = self.embedding_model
 

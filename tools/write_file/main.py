@@ -1,12 +1,21 @@
+from pathlib import Path
 from agent_framework import tool
-import os
+
 
 @tool
-def write_file(filepath: str, contents: str) -> str:
+def write_file(path: str, new_contents: str) -> str:
     """
-    Writes a given string to a file.
+    Creates a new file.
+
+    Args:
+        path: Absolute or relative path to the file.
+        new_content: The text to write or insert.
+
+    Returns:
+        A string describing the result.
     """
-    with open(filepath, "w") as f:
-        f.write(contents)
-        return "Contents written."
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(new_content, encoding="utf-8")
+    lines = new_content.count("\n") + 1
+    return f"Created {path} ({lines} lines)."
 
