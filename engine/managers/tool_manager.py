@@ -201,7 +201,10 @@ class ToolManager:
                 
             # Create the actual module from the spec
             module = importlib.util.module_from_spec(spec)
-                
+               
+            if tool_name == "search_tools":
+                module.embedding_model = self.embedding_model
+
             # Execute the module (runs the code in main.py, applying the @tool decorators)
             spec.loader.exec_module(module)
 

@@ -7,6 +7,11 @@ import sqlite3
 import sqlite_vec
 
 
+try:
+    embedding_model
+except NameError:
+    embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
 @tool
 def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -> list:
     """
@@ -22,8 +27,6 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
     tools_dir = Path(__file__).parent.parent.parent / tools_directory
     db_path = tools_dir / "tools.db"
     
-    embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-
     connection = sqlite3.connect(db_path)
     connection.enable_load_extension(True)
     sqlite_vec.load(connection)
