@@ -14,7 +14,10 @@ class ToolManager:
         self.tools_dir = Path(__file__).parent.parent.parent / tools_directory
         self.db_path = Path(f"{self.tools_dir}/tools.db")
 
-        self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.embedding_model = SentenceTransformer(
+            "all-MiniLM-L6-v2",
+            token=os.getenv("HF_TOKEN")
+        )
 
         self.core_tools = [] 
         self.loaded_tools = {}
