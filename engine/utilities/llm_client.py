@@ -2,7 +2,7 @@ from agent_framework import Agent, Message
 import asyncio
 import json
 import os
-
+from agent_framework.ollama import OllamaChatClient 
 from utilities.prompt_builder import PromptBuilder
 
 
@@ -20,6 +20,10 @@ class LLMClient:
                 model=self.model,
             )
 
+        if model_provider == "Ollama":
+            os.environ["OLLAMA_MODEL"] = os.getenv("LLM_MODEL")
+            client=OllamaChatClient()    
+    
         self.agent = client.as_agent(
             name="chat_agent",
             instructions=system_prompt

@@ -29,6 +29,7 @@
 HF_TOKEN=hf_...
 
 # Inference provider
+MODEL_PROVIDER=OpenAI-Compatible
 OPENAI_BASE_URL=http://localhost:8000/v1
 OPENAI_API_KEY=NA
 
@@ -44,14 +45,21 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 HF_TOKEN=hf_...
 
 # Inference provider
-TODO: Ollama inference variables
+MODEL_PROVIDER=Ollama
 
 # Models
-LLM_MODEL=
+LLM_MODEL=phi3
 EMBEDDING_MODEL=all-MiniLM-L6-v2
 ```
 
 ## Project Description
+
+#### Requirements
+- dotenv
+- agent-framework
+- tiktoken
+- sqlitevec
+- sentencetransformers
 
 #### Sessions
 
