@@ -4,7 +4,7 @@ from pathlib import Path
 from agent_framework import tool
 
 
-@tool
+@tool(approval_mode="always_require")
 def edit_file(
     path: str,
     command: str,
