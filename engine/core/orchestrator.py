@@ -53,8 +53,16 @@ class Orchestrator:
         # Get LLM response, append to message history, and dump
         try:
             response = self.llm.generate_response(messages, self.tool_manager.core_tools)
+            for tc in response.get("tool_calls") or []:
+                messages.append({
+                    "role": "tool",
+                    "tool_name": tc["tool_name"],
+                    "arguments": tc["arguments"],
+                    "result": tc["result"],
+                })
+
             if response.get("content"):
-                messages.append(response)
+                messages.append({"role": "assistant", "content": response["content"]})
 
             # Dump the final session state
             self.session_manager.dump_session(
