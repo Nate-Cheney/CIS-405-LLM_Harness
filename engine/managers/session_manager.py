@@ -37,9 +37,14 @@ class SessionManager:
         # Get token count for entire message history
         total_token_count = 0
         encoding = tiktoken.encoding_for_model("gpt-4")
+
         for message in messages:
-            if message is not None and "content" in message:
-                total_token_count += len(encoding.encode(message["content"]))
+            content = message.get("content") if message else None
+            if isinstance(content, str):
+                total_token_count += len(encoding.encode(content))
+            result = message.get("result") if message else None
+            if isinstance(result, str):
+                total_token_count += len(encoding.encode(result))
         
         session_json = json.dumps({
             "session_id": session_id,

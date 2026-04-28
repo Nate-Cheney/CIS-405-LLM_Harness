@@ -1,5 +1,6 @@
 from agent_framework import Agent, Message
 import asyncio
+import json
 import os
 
 from utilities.prompt_builder import PromptBuilder
@@ -54,8 +55,25 @@ class LLMClient:
             **kwargs
         )
 
+        tool_calls = []
+        for msg in result.messages:
+            for content in msg.contents:
+                if content.type == "function_call":
+                    tool_calls.append({
+                        "call_id": content.call_id,
+                        "tool_name": content.name,
+                        "arguments": json.loads(content.arguments) if content.arguments else None,
+                    })
+                elif content.type == "function_result":
+                    # Match result back to its call by call_id
+                    for tc in tool_calls:
+                        if tc["call_id"] == content.call_id:
+                            tc["result"] = content.result
+                            break
+    
         return {
             "role": "assistant",
-            "content": result.text or None
+            "content": result.text or None,
+            "tool_calls": tool_calls or None,
         }
 
