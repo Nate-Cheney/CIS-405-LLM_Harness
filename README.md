@@ -45,10 +45,13 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 HF_TOKEN=hf_...
 
 # Inference provider
-MODEL_PROVIDER=Ollama
+MODEL_PROVIDER=OpenAI-Compatible
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_API_KEY=NA
+LLM_MODEL=qwen3.5:4b
 
 # Models
-LLM_MODEL=phi3
+LLM_MODEL=qwen3.5:4b
 EMBEDDING_MODEL=all-MiniLM-L6-v2
 ```
 
