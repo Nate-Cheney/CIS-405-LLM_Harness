@@ -55,10 +55,10 @@ class LLMClient:
 
         while True:
             response_stream = self.agent.run(processed_messages, stream=True, **kwargs)
-            async for update in response_stream:
-                # Temporarily print stream
-                if update.text:
-                    print(update.text, end="", flush=True)
+            #async for update in response_stream:
+            #    # Temporarily print stream
+            #    if update.text:
+            #        print(update.text, end="", flush=True)
 
             final = await response_stream.get_final_response()
 
