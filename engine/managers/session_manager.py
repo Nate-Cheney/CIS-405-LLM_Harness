@@ -42,9 +42,14 @@ class SessionManager:
             content = message.get("content") if message else None
             if isinstance(content, str):
                 total_token_count += len(encoding.encode(content))
+
             result = message.get("result") if message else None
             if isinstance(result, str):
                 total_token_count += len(encoding.encode(result))
+
+            arguments = message.get("arguments") if message else None
+            if isinstance(arguments, str):
+                total_token_count += len(encoding.encode(arguments))                
         
         session_json = json.dumps({
             "session_id": session_id,
