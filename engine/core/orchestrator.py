@@ -52,26 +52,68 @@ class Orchestrator:
 
         # Get LLM response, append to message history, and dump
         try:
-            response = self.llm.generate_response(messages, self.tool_manager.core_tools)
-            for tc in response.get("tool_calls") or []:
-                messages.append({
-                    "role": "tool",
-                    "tool_name": tc["tool_name"],
-                    "arguments": tc["arguments"],
-                    "result": tc.get("result") or "Tool call was denied by the user.",
-                })
+            processed_messages = []
+            messages = self.llm.generate_response(messages, self.tool_manager.core_tools)
+            
+            for msg in messages:
+                role = msg.role
 
-            if response.get("content"):
-                messages.append({"role": "assistant", "content": response["content"]})
+                match role:
+                    case "assistant":
+                        if hasattr(msg, "contents") and msg.contents:
+                            for part in msg.contents:
+                                if part.type == "text":
+                                    processed_messages.append({
+                                        "role": "assistant",
+                                        "content": part.text, 
+                                    })
+                                elif part.type == "function_call": 
+                                    processed_messages.append({
+                                        "role": "assistant",
+                                        "tool_call_id": str(part.call_id),
+                                        "tool_name": part.name,
+                                        "arguments": part.arguments,
+                                    })
+                        else:
+                            processed_messages.append({
+                                "role": "assistant",
+                                "content": getattr(msg, "text", ""),
+                            })
+
+                    case "tool":
+                        if hasattr(msg, "contents") and msg.contents:
+                            for part in msg.contents:
+                                processed_messages.append({
+                                    "role": "tool",
+                                    "tool_call_id": str(getattr(part, "call_id", "None")),
+                                    "error_code": getattr(part, "error_code", None) or "None",
+                                    "error_details": getattr(part, "error_details", None) or "None.",
+                                    "result": getattr(part, "result", None) or "Tool call was denied by the user.",    
+                                })
+                        else:
+                            # Fallback just in case the tool message is malformed
+                            processed_messages.append({
+                                "role": "tool",
+                                "tool_call_id": "Unknown",
+                                "error_code": "None",
+                                "error_details": "Message contained no contents.",
+                                "result": "Tool call was denied by the user."
+                            })
+
+                    case "user":
+                        processed_messages.append({
+                            "role": "user", 
+                            "content": getattr(msg, "text", "")
+                        })
 
             # Dump the final session state
             self.session_manager.dump_session(
                 session_id,
                 time_initiated,
-                messages
+                processed_messages
             )
             
-            final_content = response.get("content")
+            final_content = processed_messages[-1].get("content")
             return (session_id, f"Agent: {final_content}")
 
         except ChatClientException as e:
