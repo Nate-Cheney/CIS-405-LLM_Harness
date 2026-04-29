@@ -16,7 +16,7 @@ def read_file(path: str) -> str:
     file_path = Path(path)
     
     if not file_path.exists():
-        return f"ERROR: File not found: {path}"
+        raise FileNotFoundError(f"File not found at path: {path}") 
 
     content = file_path.read_text(encoding="utf-8")
     numbered = "\n".join(
