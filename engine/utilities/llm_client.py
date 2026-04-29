@@ -21,11 +21,6 @@ class LLMClient:
                 model=self.model,
             )
 
-        # TODO: Do we need this since we're accessing Ollama with OpenAI API?            
-        if model_provider == "Ollama":
-            os.environ["OLLAMA_MODEL"] = os.getenv("LLM_MODEL")
-            client=OllamaChatClient()    
-    
         self.agent = client.as_agent(
             name="chat_agent",
             instructions=system_prompt
