@@ -7,7 +7,8 @@ from utilities.prompt_builder import PromptBuilder
 
 
 class LLMClient:
-    def __init__(self, model_provider: str, model_name: str):
+    def __init__(self):
+        model_provider = os.getenv("MODEL_PROVIDER")
         self.model = os.getenv("LLM_MODEL")
         prompt_builder = PromptBuilder()
         system_prompt = prompt_builder.build_system_prompt()
@@ -20,6 +21,7 @@ class LLMClient:
                 model=self.model,
             )
 
+        # TODO: Do we need this since we're accessing Ollama with OpenAI API?            
         if model_provider == "Ollama":
             os.environ["OLLAMA_MODEL"] = os.getenv("LLM_MODEL")
             client=OllamaChatClient()    

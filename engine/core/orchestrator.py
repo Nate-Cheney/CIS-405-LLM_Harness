@@ -13,7 +13,7 @@ from utilities.llm_client import LLMClient
 
 class Orchestrator:
     def __init__(self):
-        self.llm = LLMClient(os.getenv("MODEL_PROVIDER"), "temp")
+        self.llm = LLMClient()
         self.command_manager = CommandManager()
         self.session_manager = SessionManager()
         self.tool_manager = ToolManager()
