@@ -16,7 +16,7 @@ def write_file(path: str, new_contents: str) -> str:
     """
     file_path = Path(path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
-    file_path.write_text(new_content, encoding="utf-8")
+    file_path.write_text(new_contents, encoding="utf-8")
     lines = new_content.count("\n") + 1
     return f"Created {path} ({lines} lines)."
 

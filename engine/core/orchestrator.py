@@ -58,7 +58,7 @@ class Orchestrator:
                     "role": "tool",
                     "tool_name": tc["tool_name"],
                     "arguments": tc["arguments"],
-                    "result": tc["result"],
+                    "result": tc.get("result") or "Tool call was denied by the user.",
                 })
 
             if response.get("content"):
