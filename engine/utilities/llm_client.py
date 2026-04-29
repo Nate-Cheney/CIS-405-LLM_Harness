@@ -1,4 +1,4 @@
-from agent_framework import Agent, Message
+from agent_framework import Agent, Content, Message
 import asyncio
 import json
 import os
@@ -30,124 +30,81 @@ class LLMClient:
         """
         Synchronous wrapper to keep Orchestrator code simple.
         """
-        return asyncio.run(self._async_generate_response(messages, tools))
+        return asyncio.run(self._async_generate_response(raw_messages=messages, tools=tools))
 
-    async def _async_generate_response(self, messages: list, tools: list = None) -> dict:
+    async def _async_generate_response(self, raw_messages: list, tools: list = None) -> list[Message]:
         """
         Asynchronous function to clean & pass message history
         to prompt a response from the LLM.
 
         If needed, approval for [some] tool calls are gotten
         and a response is re-generated.
-        """
-        cleaned_messages = self._clean_messages(messages)
-        kwargs = {"tools": tools} if tools else {}
-    
-        result = await self.agent.run(messages=cleaned_messages, **kwargs)
-    
-        while True:
-            approval_response_contents = self._collect_approval_responses(result)
-            if not approval_response_contents:
-                break
-    
-            # Pass approval responses back as a new user message
-            approval_message = Message("user", approval_response_contents)
-            result = await self.agent.run(
-                messages=cleaned_messages + [approval_message],
-                **kwargs
-            )
-    
-        return self._extract_result(result)
-    
-    def _collect_approval_responses(self, result) -> list:
-        """
-        Finds function_approval_request contents, prompts the user,
-        and returns a list of function_approval_response Content objects.
-        """
-        responses = []
-        for msg in result.messages:
-            for content in msg.contents:
-                if content.type == "function_approval_request" and content.user_input_request:
-                    function_call = content.function_call
-                    args = json.loads(function_call.arguments) if function_call.arguments else {}
-    
-                    print(f"\n⚠  Agent wants to call: {function_call.name}")
-                    print(f"   Arguments: {json.dumps(args, indent=4)}")
-    
-                    while True:
-                        choice = input("   Approve? [y/n]: ").strip().lower()
-                        if choice in ("y", "yes"):
-                            # Use the framework's own method to build the response
-                            responses.append(content.to_function_approval_response(approved=True))
-                            break
-                        if choice in ("n", "no"):
-                            responses.append(content.to_function_approval_response(approved=False))
-                            break
-                        print("   Please enter 'y' or 'n'.")
-        return responses
 
-
-
-    async def _process_approval_requests(self, result) -> dict | None:
-        """
-        Scans result messages for function_approval_request events.
-        Prompts user for each one. 
-    
         Returns:
-            dict of {request_id: approved}
-        or 
-            None - if there were no pending approvals.
+            A list of message objects.
         """
-        pending = {}
-    
-        for msg in result.messages:
-            for content in msg.contents:
-                if content.type == "function_approval_request" and content.user_input_request:
-                    function_call = content.function_call
-                    args = json.loads(function_call.arguments) if function_call.arguments else {}
-    
-                    print(f"\n⚠  Agent wants to call: {function_call.name}")
-                    print(f"   Arguments: {json.dumps(args, indent=4)}")
-    
-                    while True:
-                        choice = input("   Approve? [y/n]: ").strip().lower()
-                        if choice in ("y", "yes"):
-                            pending[content.id] = True
-                            break
-                        if choice in ("n", "no"):
-                            pending[content.id] = False
-                            break
-                        print("   Please enter 'y' or 'n'.")
-    
-    def _clean_messages(self, messages: list) -> list:
-        cleaned = []
-        for msg in messages:
+       
+        # Convert raw messages from list[dict] to list[Message]
+        processed_messages = []
+        for msg in raw_messages:
             role = msg.get("role")
-            if role == "tool":
-                content = f"[Tool: {msg['tool_name']}]\nArgs: {msg['arguments']}\nResult: {msg['result']}"
-                cleaned.append(Message("user", [content]))
-            elif msg.get("content"):
-                cleaned.append(Message(role, [msg["content"]]))
-        return cleaned
+            if msg.get("content"):
+                processed_messages.append(Message(role, [msg["content"]]))
+        
+        kwargs = {"tools": tools} if tools else {}
 
-    def _extract_result(self, result) -> dict:
-        tool_calls = []
-        for msg in result.messages:
-            for content in msg.contents:
-                if content.type == "function_call":
-                    tool_calls.append({
-                        "call_id": content.call_id,
-                        "tool_name": content.name,
-                        "arguments": json.loads(content.arguments) if content.arguments else None,
-                    })
-                elif content.type == "function_result":
-                    for tc in tool_calls:
-                        if tc["call_id"] == content.call_id:
-                            tc["result"] = content.result
-                            break
-        return {
-            "role": "assistant",
-            "content": result.text or None,
-            "tool_calls": tool_calls or None,
-        }
+        while True:
+            response_stream = self.agent.run(processed_messages, stream=True, **kwargs)
+            async for update in response_stream:
+                # Temporarily print stream
+                if update.text:
+                    print(update.text, end="", flush=True)
+
+            final = await response_stream.get_final_response()
+
+            processed_messages.extend(final.messages)
+
+            # Check for function approvals and handle
+            approval_contents = []
+            for msg in final.messages:
+                for content in msg.contents:
+                    if content.type == "function_approval_request":
+                        # Get approval or denial from user
+                        is_approved = self._get_function_approval(content.function_call)
+
+                        # Track decision 
+                        response_content = content.to_function_approval_response(approved=is_approved)
+                        approval_contents.append(response_content)
+            
+            # Approval is not needed, final is actually the final output
+            if not approval_contents:
+                break
+
+            # Approval was needed, add approval to message history, & loop again
+            approval_message = Message(role="user", contents=approval_contents)
+            processed_messages.append(approval_message)
+
+        return processed_messages 
+   
+    # TODO: figure out function_call's type and annotate
+    def _get_function_approval(self, function_call) -> bool:
+
+        approval_string = f"""
+Would you like to approve the following tool call? 
+    Name: {function_call.name}.
+    Args: {function_call.arguments}
+
+(y/n): """
+
+        while True:
+            approval_decision = input(approval_string).lower().strip()
+
+            if approval_decision not in ["y", "yes", "n", "no"]:
+                print("ERROR: Invalid input, enter y or n.")
+                continue
+
+            if approval_decision in ["y", "yes"]:
+                return True
+            # Approval was n or no
+            return False 
 
