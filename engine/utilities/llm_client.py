@@ -127,9 +127,12 @@ class LLMClient:
     def _clean_messages(self, messages: list) -> list:
         cleaned = []
         for msg in messages:
-            if not msg.get("content"):
-                continue
-            cleaned.append(Message(msg["role"], [msg["content"]]))
+            role = msg.get("role")
+            if role == "tool":
+                content = f"[Tool: {msg['tool_name']}]\nArgs: {msg['arguments']}\nResult: {msg['result']}"
+                cleaned.append(Message("user", [content]))
+            elif msg.get("content"):
+                cleaned.append(Message(role, [msg["content"]]))
         return cleaned
 
     def _extract_result(self, result) -> dict:
