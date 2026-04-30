@@ -7,6 +7,7 @@ import sqlite3
 import sqlite_vec
 
 
+# embedding_model is injected when the tool is loaded
 try:
     embedding_model
 except NameError:
@@ -30,12 +31,15 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
     tools_dir = Path(__file__).parent.parent.parent / tools_directory
     db_path = tools_dir / "tools.db"
     
-    connection = sqlite3.connect(db_path)
-    connection.enable_load_extension(True)
-    sqlite_vec.load(connection)
-    connection.enable_load_extension(False)
-    cursor = connection.cursor()
-    
+    try:
+        connection = sqlite3.connect(db_path)
+        connection.enable_load_extension(True)
+        sqlite_vec.load(connection)
+        connection.enable_load_extension(False)
+        cursor = connection.cursor()
+    except Exception as e:
+        return f"Error connecting to tool database: {e}"
+
     # Embed search query - using 'keyword' consistently
     query_vector = embedding_model.encode(keyword)
     query_bytes = np.array(query_vector, dtype=np.float32).tobytes()
@@ -85,8 +89,11 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
     matched_tools = list(unique_tools.values())        
     matched_tools.sort(key=lambda x: x["distance"])
     
-    connection.close() 
+    try:
+        connection.close() 
+    except Exception as e:
+        print(f"Error closing database connection: {e}")
+        
     print(f"Found {len(matched_tools)} tools.")
 
     return "\n".join([f"- {t['tool_name']}: {t['description']}" for t in matched_tools])
-
