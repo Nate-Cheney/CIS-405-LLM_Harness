@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 
@@ -13,7 +12,7 @@ class PromptBuilder:
         """
         system_instructions = []
 
-        core_files = ["AGENT.md", "MANDATE.md", "MEMORY.md"]
+        core_files = ["MANDATE.md", "AGENT.md", "MEMORY.md"]
         for filename in core_files:
             file_path = self.studio_path / filename
             if file_path.exists():
