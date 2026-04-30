@@ -144,6 +144,7 @@ class ToolManager:
 
         # Skip folders that don't conform to the manifest structure
         if not config_path.exists() or not main_path.exists():
+            print(f"Skipping {tool_folder.name}: missing config.json or main.py")
             return 
 
         # Read config file
