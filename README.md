@@ -61,7 +61,7 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 - dotenv
 - agent-framework
 - tiktoken
-- sqlitevec
+- sqlite-vec
 - sentencetransformers
 
 #### Sessions
