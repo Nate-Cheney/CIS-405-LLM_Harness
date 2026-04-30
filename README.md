@@ -20,6 +20,14 @@
 |  |--etc
 ```
 
+## Quickstart
+
+0. Clone the repo `git clone https://github.com/Nate-Cheney/CIS-405-LLM_Harness.git`.
+0. Create a Python virtual environment: `python -m venv .venv`.
+0. Source the venv: (Mac/Linux) `source .venv/bin/activate` or (Windows) `.venv/scripts/activate.ps1`.
+0. Upgrade pip: `pip install --upgrade pip`.
+0. Install libraries: `pip install dotenv agent-framework tiktoken sqlite-vec sentence-transformers`.
+
 ## Example environment files
 
 #### vLLM
@@ -56,13 +64,6 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 ```
 
 ## Project Description
-
-#### Requirements
-- dotenv
-- agent-framework
-- tiktoken
-- sqlite-vec
-- sentence-transformers
 
 #### Sessions
 
