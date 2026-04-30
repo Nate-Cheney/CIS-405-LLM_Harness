@@ -44,13 +44,45 @@ class LLMClient:
             A list of message objects.
         """
        
-        # Convert raw messages from list[dict] to list[Message]
+ # Convert raw messages from list[dict] to list[Message]
         processed_messages = []
         for msg in raw_messages:
             role = msg.get("role")
-            if msg.get("content"):
+
+            if role == "user" and msg.get("content"):
                 processed_messages.append(Message(role, [msg["content"]]))
-        
+
+            elif role == "assistant":
+                if msg.get("content"):
+                    processed_messages.append(Message(role, [msg["content"]]))
+
+                elif msg.get("tool_call_id"):
+                    # Create function call Content object
+                    call_content = Content.from_function_call(
+                        call_id=msg["tool_call_id"],
+                        name=msg["tool_name"],
+                        arguments=msg["arguments"]
+                    )
+                    # Pass it in a list to Message
+                    processed_messages.append(Message(role, [call_content]))
+
+            elif role == "tool":
+                # Handle potential errors
+                error_code = None if msg.get("error_code") == "None" else msg.get("error_code")
+                error_details = None if msg.get("error_details") == "None" else msg.get("error_details")
+                
+                tool_result = msg.get("result")
+                if error_code:
+                    tool_result = f"Error {error_code}: {error_details}\n{tool_result}".strip()
+
+                # Create function result Content object
+                result_content = Content.from_function_result(
+                    call_id=msg["tool_call_id"],
+                    result=tool_result
+                )
+                # Pass it in a list to Message
+                processed_messages.append(Message(role, [result_content]))
+
         kwargs = {"tools": tools} if tools else {}
 
         while True:
