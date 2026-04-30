@@ -12,10 +12,11 @@ def wikipedia_summary(query: str) -> str:
         slug = query.strip().replace(" ", "_")
         resp = httpx.get(
             f"https://en.wikipedia.org/api/rest_v1/page/summary/{slug}",
-            timeout=8,
+            timeout=10,
         )
         if resp.status_code == 200:
-            return resp.json().get("extract", "No summary available.")
+            return resp.json().get("extract", f"No summary available for '{query}'.")
         return f"Wikipedia returned status {resp.status_code} for '{query}'."
-    except Exception as exc:
-        return f"Wikipedia lookup failed: {exc}"
+    except Exception as e:
+        return f"Wikipedia lookup failed: {e}"
+
