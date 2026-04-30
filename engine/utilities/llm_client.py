@@ -2,7 +2,8 @@ from agent_framework import Agent, Content, Message
 import asyncio
 import json
 import os
-from agent_framework.ollama import OllamaChatClient 
+from agent_framework.ollama import OllamaChatClient
+from docstring_parser import google 
 from utilities.prompt_builder import PromptBuilder
 
 
@@ -20,7 +21,13 @@ class LLMClient:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 model=self.model,
             )
-
+        elif model_provider == "Gemini":
+            from agent_framework_gemini import GeminiChatClient
+            client = GeminiChatClient(
+                api_key=os.getenv("GEMINI_API_KEY"),
+                model=self.model,
+            )
+        
         self.agent = client.as_agent(
             name="chat_agent",
             instructions=system_prompt
@@ -57,9 +64,12 @@ class LLMClient:
                     processed_messages.append(Message(role, [msg["content"]]))
 
                 elif msg.get("tool_call_id"):
+                    # Handle potential errors
+                    func_call_id = None if msg["tool_call_id"] == "None" else msg["tool_call_id"]
+
                     # Create function call Content object
                     call_content = Content.from_function_call(
-                        call_id=msg["tool_call_id"],
+                        call_id=func_call_id,
                         name=msg["tool_name"],
                         arguments=msg["arguments"]
                     )
@@ -74,10 +84,10 @@ class LLMClient:
                 tool_result = msg.get("result")
                 if error_code:
                     tool_result = f"Error {error_code}: {error_details}\n{tool_result}".strip()
-
+                func_call_id = None if msg["tool_call_id"] == "None" else msg["tool_call_id"]
                 # Create function result Content object
                 result_content = Content.from_function_result(
-                    call_id=msg["tool_call_id"],
+                    call_id=func_call_id,
                     result=tool_result
                 )
                 # Pass it in a list to Message
@@ -108,8 +118,11 @@ class LLMClient:
                         response_content = content.to_function_approval_response(approved=is_approved)
                         approval_contents.append(response_content)
             
-            # Approval is not needed, final is actually the final output
+            # If no approvals are needed, check if the last message was a tool execution.
+            # If it was a tool, we must loop again to let the LLM generate a final text response.
             if not approval_contents:
+                if processed_messages and processed_messages[-1].role == "tool":
+                    continue
                 break
 
             # Approval was needed, add approval to message history, & loop again

@@ -83,12 +83,16 @@ class Orchestrator:
                     case "tool":
                         if hasattr(msg, "contents") and msg.contents:
                             for part in msg.contents:
+                                # Get the result, defaulting to an empty string if it is explicitly None
+                                raw_result = getattr(part, "result", None)
+                                final_result = "" if raw_result is None else raw_result
+
                                 processed_messages.append({
                                     "role": "tool",
                                     "tool_call_id": str(getattr(part, "call_id", "None")),
                                     "error_code": getattr(part, "error_code", None) or "None",
                                     "error_details": getattr(part, "error_details", None) or "None.",
-                                    "result": getattr(part, "result", None) or "Tool call was denied by the user.",    
+                                    "result": final_result,    
                                 })
                         else:
                             # Fallback just in case the tool message is malformed
@@ -113,7 +117,16 @@ class Orchestrator:
                 processed_messages
             )
             
-            final_content = processed_messages[-1].get("content")
+            final_message = processed_messages[-1]
+            
+            # Check what type of message ended the sequence to format it correctly
+            if final_message["role"] == "tool":
+                final_content = f"[Tool Execution] Result: {final_message.get('result')}"
+            elif final_message["role"] == "assistant" and final_message.get("tool_name"):
+                final_content = f"[Tool Called] Name: {final_message.get('tool_name')}"
+            else:
+                final_content = final_message.get("content", "")
+
             return (session_id, f"Agent: {final_content}")
 
         except ChatClientException as e:
