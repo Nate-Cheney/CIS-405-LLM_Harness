@@ -44,7 +44,7 @@ class LLMClient:
             A list of message objects.
         """
        
- # Convert raw messages from list[dict] to list[Message]
+        # Convert raw messages from list[dict] to list[Message]
         processed_messages = []
         for msg in raw_messages:
             role = msg.get("role")
