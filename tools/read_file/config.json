@@ -1,6 +1,5 @@
 {
     "name": "read_file",
-    "is_core": true,
     "description": "Reads the contents of a file from the filesystem.",
     "keywords": ["read", "open", "file", "document", "cat"]
 }

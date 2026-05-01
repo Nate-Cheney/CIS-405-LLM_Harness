@@ -1,6 +1,5 @@
 {
     "name": "wikipedia_summary",
-    "is_core": false,
     "description": "Return a short plain-text summary from Wikipedia for the given search query.",
     "keywords": ["wikipedia", "search", "summary", "information", "knowledge", "query", "encyclopedia", "facts"]
 }

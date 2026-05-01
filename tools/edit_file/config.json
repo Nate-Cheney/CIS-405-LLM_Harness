@@ -1,6 +1,5 @@
 {
     "name": "edit_file", 
-    "is_core": true,
     "description": "Edit the contents of a file.",
     "keywords": ["edit", "modify", "insert", "change", "sed", "file", "document"]
 }

@@ -154,5 +154,7 @@ The `memory/` directory contains a collection of daily notes. Each daily note co
 
 #### Tools
 
-All tools accessible to the model will be kept in the `tools/` directory. Tools tagged as *core* will be initialized with each agent.
+All tools accessible to the model will be kept in the `tools/` directory.
+
+All tools in `tools/` are loaded and passed to the agent by default. If a tool needs gating, use `@tool(approval_mode=...)` in the tool implementation.
 

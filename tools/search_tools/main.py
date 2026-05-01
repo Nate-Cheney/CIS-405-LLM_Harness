@@ -48,7 +48,6 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
     cursor.execute("""
         SELECT 
             t.tool_name, 
-            t.is_core,
             t.description, 
             v.distance 
         FROM vec_tools v
@@ -61,7 +60,6 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
     cursor.execute("""
         SELECT 
             t.tool_name, 
-            t.is_core,
             t.description, 
             v.distance 
         FROM vec_tools v
@@ -74,15 +72,14 @@ def search_tools(keyword: str, top_k: int = 5, tools_directory: str = "tools") -
     unique_tools = {}
     for row in description_results + keyword_results:
         tool_name = row[0]
-        distance = row[3]
+        distance = row[2]
             
         if tool_name in unique_tools:
             unique_tools[tool_name]["distance"] = min(unique_tools[tool_name]["distance"], distance)
         else:
             unique_tools[tool_name] = {
                 "tool_name": tool_name,
-                "is_core": bool(row[1]),
-                "description": row[2],
+                "description": row[1],
                 "distance": distance
             }
         

@@ -53,7 +53,7 @@ class Orchestrator:
         # Get LLM response, append to message history, and dump
         try:
             processed_messages = []
-            messages = self.llm.generate_response(messages, self.tool_manager.core_tools)
+            messages = self.llm.generate_response(messages, self.tool_manager.tools)
             
             for msg in messages:
                 role = msg.role

@@ -1,6 +1,5 @@
 {
     "name": "write_file", 
-    "is_core": true,
     "description": "Creates a new file.",
     "keywords": ["write", "create", "new", "file", "document", "echo >"]
 }

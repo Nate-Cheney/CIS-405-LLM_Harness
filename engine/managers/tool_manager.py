@@ -19,7 +19,9 @@ class ToolManager:
             token=os.getenv("HF_TOKEN")
         )
 
-        self.core_tools = [] 
+        # List of tool callables passed to the agent.
+        # Keep ordering deterministic to make tool availability stable.
+        self.tools = []
         self.loaded_tools = {}
 
         self._init_database()  # Init db and create self.connection object
@@ -41,7 +43,6 @@ class ToolManager:
         self.cursor.execute("""
             SELECT 
                 t.tool_name, 
-                t.is_core,
                 t.description, 
                 v.distance 
             FROM vec_tools v
@@ -54,7 +55,6 @@ class ToolManager:
         self.cursor.execute("""
             SELECT 
                 t.tool_name, 
-                t.is_core,
                 t.description, 
                 v.distance 
             FROM vec_tools v
@@ -67,7 +67,7 @@ class ToolManager:
         unique_tools = {}
         for row in description_results + keyword_results:
             tool_name = row[0]
-            distance = row[3]
+            distance = row[2]
             
             if tool_name in unique_tools:
                 # If tool already exists, update to the lower distance
@@ -75,8 +75,7 @@ class ToolManager:
             else:
                 unique_tools[tool_name] = {
                     "tool_name": tool_name,
-                    "is_core": bool(row[1]),
-                    "description": row[2],
+                    "description": row[1],
                     "distance": distance
                 }
         
@@ -96,12 +95,29 @@ class ToolManager:
         self.connection.enable_load_extension(False)
 
         self.cursor = self.connection.cursor()
+
+        # Migration: older versions stored an `is_core` column in the tools table.
+        # The tools DB is derived from manifests, so the simplest safe migration is
+        # to rebuild the DB when we detect the legacy schema.
+        try:
+            self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tools';")
+            tools_table_exists = self.cursor.fetchone() is not None
+            if tools_table_exists:
+                self.cursor.execute("PRAGMA table_info(tools);")
+                existing_columns = {row[1] for row in self.cursor.fetchall()}
+                if "is_core" in existing_columns:
+                    self.cursor.execute("DROP TABLE IF EXISTS vec_tools;")
+                    self.cursor.execute("DROP TABLE IF EXISTS tools;")
+                    self.connection.commit()
+        except Exception:
+            # If migration detection fails for any reason, continue with CREATE IF NOT EXISTS.
+            # Worst case: the next SQL statement will surface a more actionable error.
+            pass
         
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS tools (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tool_name TEXT UNIQUE NOT NULL,
-                is_core BOOLEAN,
                 description TEXT,
                 keywords TEXT
             )
@@ -156,7 +172,6 @@ class ToolManager:
             return
 
         tool_name = manifest.get("name", tool_folder.name)
-        is_core = manifest.get("is_core", False)
         description = manifest.get("description", "")
         keywords = manifest.get("keywords", [])
         
@@ -170,14 +185,13 @@ class ToolManager:
         # Save data to database
         # UPSERT into the tools table
         self.cursor.execute("""
-            INSERT INTO tools (tool_name, is_core, description, keywords)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO tools (tool_name, description, keywords)
+            VALUES (?, ?, ?)
             ON CONFLICT(tool_name) DO UPDATE SET 
-                is_core = excluded.is_core,
                 description = excluded.description,
                 keywords = excluded.keywords
             RETURNING id; 
-        """, (tool_name, is_core, description, keywords_str))
+        """, (tool_name, description, keywords_str))
         
         actual_id = self.cursor.fetchone()[0]
         
@@ -218,10 +232,7 @@ class ToolManager:
 
             if tool_function:
                 print(f"Successfully loaded tool: {tool_name}")
-                
-                if is_core:
-                    self.core_tools.append(tool_function)
-
+                self.tools.append(tool_function)
                 self.loaded_tools[tool_name] = tool_function
 
             else:
