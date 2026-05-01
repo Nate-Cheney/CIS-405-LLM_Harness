@@ -27,7 +27,6 @@ class LLMClient:
                 api_key=os.getenv("GEMINI_API_KEY"),
                 model=self.model,
             )
-        
         self.agent = client.as_agent(
             name="chat_agent",
             instructions=system_prompt

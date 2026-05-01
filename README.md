@@ -56,10 +56,40 @@ HF_TOKEN=hf_...
 MODEL_PROVIDER=OpenAI-Compatible
 OPENAI_BASE_URL=http://localhost:11434/v1
 OPENAI_API_KEY=NA
-LLM_MODEL=qwen3.5:4b
 
 # Models
 LLM_MODEL=qwen3.5:4b
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+```
+
+#### Groq
+
+``` .env
+# Huggingface
+HF_TOKEN=hf...
+
+# Inference provider
+MODEL_PROVIDER=OpenAI-Compatible
+OPENAI_BASE_URL=https://api.groq.com/openai/v1
+OPENAI_API_KEY= Your Grok API Key
+
+# Models
+LLM_MODEL=openai/gpt-oss-120b
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+```
+
+#### Gemini
+
+``` .env
+# Huggingface
+HF_TOKEN=hf...
+
+# Inference provider
+MODEL_PROVIDER=Gemini
+GEMINI_API_KEY=Your Gemini API Key
+
+# Models
+LLM_MODEL=gemini-flash-latest
 EMBEDDING_MODEL=all-MiniLM-L6-v2
 ```
 
