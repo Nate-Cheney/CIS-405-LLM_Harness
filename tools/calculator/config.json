@@ -1,5 +1,4 @@
 {
     "name": "calculator", 
-    "description": "Calculate mathematical expressions.",
-    "keywords": ["calculate", "math", "expression", "formula", "sqrt", "pi", "abs", "round", "pow", "+", "-", "*", "/", "**", "square root", "absolute value"]
+    "description": "Calculate mathematical expressions."
 }
