@@ -1,4 +1,5 @@
 {
     "name": "wikipedia_summary",
-    "description": "Return a short plain-text summary from Wikipedia for the given search query."
+    "description": "Return a short plain-text summary from Wikipedia for the given search query.",
+    "keywords": ["wikipedia", "search", "summary", "information", "knowledge", "query", "encyclopedia", "facts"]
 }

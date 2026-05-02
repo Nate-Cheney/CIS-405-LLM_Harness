@@ -1,4 +1,5 @@
 {
     "name": "list_files",
-    "description": "Lists the contents of a given directory on the filesystem"
+    "description": "Lists the contents of a given directory on the filesystem",
+    "keywords": ["list"]
 }

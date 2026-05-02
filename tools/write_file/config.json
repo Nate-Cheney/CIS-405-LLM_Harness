@@ -1,4 +1,5 @@
 {
     "name": "write_file", 
-    "description": "Creates a new file."
+    "description": "Creates a new file.",
+    "keywords": ["write", "create", "new", "file", "document", "echo >"]
 }

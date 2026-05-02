@@ -1,4 +1,5 @@
 {
     "name": "edit_file", 
-    "description": "Edit the contents of a file."
+    "description": "Edit the contents of a file.",
+    "keywords": ["edit", "modify", "insert", "change", "sed", "file", "document"]
 }
