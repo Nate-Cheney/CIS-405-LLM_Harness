@@ -130,9 +130,7 @@ class LLMClient:
 
         return processed_messages 
    
-    # TODO: figure out function_call's type and annotate
-    def _get_function_approval(self, function_call) -> bool:
-
+    def _get_function_approval(self, function_call: Content) -> bool:
         approval_string = f"""
 Would you like to approve the following tool call? 
     Name: {function_call.name}.
