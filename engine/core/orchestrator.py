@@ -6,6 +6,7 @@ from agent_framework.exceptions import ChatClientException
 from datetime import datetime
 
 from managers.command_manager import CommandManager
+from managers.memory_manager import MemoryManager
 from managers.session_manager import SessionManager
 from managers.tool_manager import ToolManager
 from utilities.llm_client import LLMClient
@@ -17,6 +18,7 @@ class Orchestrator:
         self.command_manager = CommandManager()
         self.session_manager = SessionManager()
         self.tool_manager = ToolManager()
+        self.memory_manager = MemoryManager()
 
     def run_turn(self, session_id: str, user_input: str) -> tuple[str, str]:
         """
