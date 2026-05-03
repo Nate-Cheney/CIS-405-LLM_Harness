@@ -1,0 +1,4 @@
+{
+  "name": "search_memory",
+  "description": "Semantically search past session messages for relevant context."
+}
