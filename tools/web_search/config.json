@@ -1,4 +1,0 @@
-{
-    "name": "web_search",
-    "description": "Searches the web for the top 10 results. Returns titles, snippets, and links to help summarize a topic and cite sources."
-}

@@ -26,7 +26,7 @@
 0. Create a Python virtual environment: `python -m venv .venv`.
 0. Source the venv: (Mac/Linux) `source .venv/bin/activate` or (Windows) `.venv/scripts/activate.ps1`.
 0. Upgrade pip: `pip install --upgrade pip`.
-0. Install libraries: `pip install dotenv agent-framework tiktoken sqlite-vec sentence-transformers`.
+0. Install libraries: `pip install dotenv agent-framework tiktoken sqlite-vec sentence-transformers bs4`.
 
 ## Example environment files
 
@@ -157,4 +157,3 @@ The `memory/` directory contains a collection of daily notes. Each daily note co
 All tools accessible to the model will be kept in the `tools/` directory.
 
 All tools in `tools/` are loaded and passed to the agent by default. If a tool needs gating, use `@tool(approval_mode=...)` in the tool implementation.
-

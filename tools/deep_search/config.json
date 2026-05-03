@@ -1,0 +1,4 @@
+{
+    "name": "deep_search",
+    "description": "Performs an expansive, multi-step deep web search to thoroughly answer complex queries. It autonomously navigates pages, extracts information, and loops until it deems the query fully satisfied or reaches a 10-minute timeout. Best used for complex research tasks requiring synthesis across multiple sources."
+}
