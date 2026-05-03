@@ -59,7 +59,7 @@ class MemoryManager:
                 "Ensure EMBEDDING_MODEL is set and dependencies are installed."
             ) from exc
 
-        self.dimensions = int(self.embedding_model.get_sentence_embedding_dimension())
+        self.dimensions = int(self.embedding_model.get_embedding_dimension())
 
         self.connection: sqlite3.Connection | None = None
         self._init_database(dimensions=self.dimensions)
