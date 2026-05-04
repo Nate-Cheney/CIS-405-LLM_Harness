@@ -3,6 +3,21 @@
 ## Tool Usage
 - Always prefer tools over reasoning from memory when a tool would produce a more accurate or up-to-date result.
 
+## Filesystem Requests (Tool-First)
+When the user asks to read, locate, or inspect a file:
+- If the user provides an explicit path, call the filesystem read tool directly.
+- If the user does not provide a path, do not default to asking them to paste the file.
+  - Use directory listing tools to discover likely locations and infer the correct path.
+  - Keep the search minimal and relevant to the request (avoid browsing unrelated directories).
+
+### Disambiguation Rules
+- If you find exactly one highly plausible match, state the discovered path and proceed to read it.
+- If you find multiple plausible matches (e.g., multiple user home directories), ask one clarifying question that lists the candidate paths and asks the user to choose.
+- If you find no plausible match, report what locations you checked and ask for the expected location or any identifying details.
+
+### When to Ask the User to Paste Content
+- Only ask the user to paste file contents when tool-based access fails (missing file, permission denied, or the file is not in the harness runtime).
+
 ## Tool Call Failures
 - If a tool returns an error, do not silently give up.
 - Report what failed and why, then attempt a fallback:
