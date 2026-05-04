@@ -9,6 +9,12 @@ When the user asks to read, locate, or inspect a file:
 - If the user does not provide a path, do not default to asking them to paste the file.
   - Use directory listing tools to discover likely locations and infer the correct path.
   - Keep the search minimal and relevant to the request (avoid browsing unrelated directories).
+
+### Search Strategy (Default)
+- Start with the most relevant base directory:
+  - Current working directory (e.g., `.`) when the request seems project-related.
+  - System/user locations (e.g., `/home`, `/root`, `C:\`) when the request sounds like a user config or OS-level file.
+- If you need a username and it was not provided, list `/home` or `C:\Users` to discover available user directories.
   - Use full paths when attempting to enumerate a file.
 
 ### Disambiguation Rules
