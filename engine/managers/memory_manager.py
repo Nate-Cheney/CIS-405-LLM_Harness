@@ -215,9 +215,9 @@ class MemoryManager:
             "SELECT m.*, v.distance AS distance "
             "FROM message_vectors v "
             "JOIN messages m ON m.id = v.rowid "
-            "WHERE v.embedding MATCH vec_f32(?)"
+            "WHERE v.embedding MATCH vec_f32(?) AND v.k = ?"
         )
-        params: list[Any] = [query_blob]
+        params: list[Any] = [query_blob, int(top_k)]
 
         if session_id:
             sql += " AND m.session_id = ?"
@@ -230,8 +230,7 @@ class MemoryManager:
                 sql += f" AND m.role IN ({placeholders})"
                 params.extend(roles)
 
-        sql += " ORDER BY v.distance LIMIT ?"
-        params.append(int(top_k))
+        sql += " ORDER BY v.distance"
 
         rows = self.connection.execute(sql, params).fetchall()
         results: list[dict[str, Any]] = []
