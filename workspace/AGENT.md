@@ -9,6 +9,7 @@ When the user asks to read, locate, or inspect a file:
 - If the user does not provide a path, do not default to asking them to paste the file.
   - Use directory listing tools to discover likely locations and infer the correct path.
   - Keep the search minimal and relevant to the request (avoid browsing unrelated directories).
+  - Use full paths when attempting to enumerate a file.
 
 ### Disambiguation Rules
 - If you find exactly one highly plausible match, state the discovered path and proceed to read it.
