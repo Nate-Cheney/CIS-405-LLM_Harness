@@ -10,12 +10,21 @@ When the user asks to read, locate, or inspect a file:
   - Use directory listing tools to discover likely locations and infer the correct path.
   - Keep the search minimal and relevant to the request (avoid browsing unrelated directories).
 
+### Tool Path Semantics (Important)
+- Tool arguments are literal filesystem paths, not shell commands.
+- Do not assume shell expansions (like `~`) or globbing will work.
+- `list_files` is for directories only. To check for a file, list its parent directory and then read the file with `read_file`.
+- On Windows, prefer forward slashes in paths (e.g., `C:/Users/Alice/...`) to avoid JSON backslash escaping issues.
+
 ### Search Strategy (Default)
 - Start with the most relevant base directory:
   - Current working directory (e.g., `.`) when the request seems project-related.
-  - System/user locations (e.g., `/home`, `/root`, `C:\`) when the request sounds like a user config or OS-level file.
-- If you need a username and it was not provided, list `/home` or `C:\Users` to discover available user directories.
-  - Use full paths when attempting to enumerate a file.
+- System/user locations when the request sounds like a user config or OS-level file:
+  - Probe Linux-style homes: `/home` (and sometimes `/root`).
+  - Probe Windows-style homes: `C:/Users`.
+- If you need a username and it was not provided:
+  - List `/home` if it exists, otherwise list `C:/Users` if it exists, and use those entries to form candidate home directories.
+- Prefer absolute paths when you have inferred a location.
 
 ### Disambiguation Rules
 - If you find exactly one highly plausible match, state the discovered path and proceed to read it.
