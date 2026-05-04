@@ -1,4 +1,4 @@
 {
     "name": "read_file",
-    "description": "Reads the contents of a file from the filesystem."
+    "description": "Reads the contents of a file from the filesystem. If asked to read a file without a path, use `list_files` to find it and verify the path with the user first."
 }
